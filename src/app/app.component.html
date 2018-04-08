@@ -10,6 +10,8 @@
     <td>{{data.city}}</td>
     <td>{{data.latitude}}</td>
     <td>{{data.longitude}}</td>
-    <td>{{data.time}}</td>
+  </tr>
+  <tr *ngFor="let data of resultData">
+    <td>{{data}}</td>
   </tr>
 </table>

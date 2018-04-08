@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterContentInit } from '@angular/core';
 import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { GooleTimeZoneService } from './goole-time-zone.service';
@@ -9,9 +9,10 @@ import { GooleTimeZoneService } from './goole-time-zone.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  lat = "11.913860";
-  lng = "79.814472";
   result;
+  resultData = [];
+  zoneTimeCity = [];
+  resultTime;
   public cityListData = [
     {
       city: "Pondicherry",
@@ -79,23 +80,27 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getTimezone(this.lat, this.lng);
+    this.getTimezone();
   }
 
-  getTimezone(lat, lng) {
-    this.gooleTimeZoneService.getTimezone(lat, lng).subscribe(res => {
-      this.result = res;
-      console.log(this.result);
+
+  getTimezone() {
+    let datTimeZone = this.cityListData.map(item => {
+      let timestamp = (Math.round((new Date(item.time).getTime()) / 1000)).toString();
+      this.gooleTimeZoneService.getTimezone(item.latitude, item.longitude, timestamp).subscribe(res => {
+        this.result = res;
+        var Cur_Date = new Date(item.time);
+        var UTC = Cur_Date.getTime() + (Cur_Date.getTimezoneOffset() * 60000);
+        var Loc_Date = new Date(UTC - (1000 * this.result.rawOffset) + (1000 * this.result.dstOffset));
+        this.resultTime = Loc_Date.toLocaleString();
+        this.resultData.push(this.resultTime);
+
+      });
+      console.log(this.resultData);
     });
-
   }
 
 
-
-  // getTimezone(lat, lng) {
-  //   return this.http.get('https://maps.googleapis.com/maps/api/timezone/json?location=' + lat + ',' + lng + '&timestamp=1458000000&key=AIzaSyCxKmcOv0t-oy2C1LzWjR7nkT5W2vQRsMM')
-  //     .map(res => res.json());
-  // }
 
 }
 
